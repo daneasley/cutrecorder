@@ -1,0 +1,103 @@
+[Settings]
+
+# sets the window title (wow!)
+
+configuration_name: Valley Voice Radio Reading Service
+
+# final destination for cuts (needs slash at end)
+
+destination: /media/dropbox/
+
+# temporary file location (default saves in folder program is run from)
+
+temporary_file: ./cutrecorder-valleyvoice-temporaryfile.wav
+
+# optional / not used:
+
+configuration_date: 20150619
+configuration_author: Dan Easley
+configuration_version: 0.4
+
+
+# Cut Sections:
+#
+# Cuts must be numbered in ascending order.
+# Labels may be added, provided they too are named in ascending order (label1, label2, ...), and have a filename of 'label'.
+#
+# required keys:
+#    title 
+#    duration (in seconds)
+#    filename (to be saved in directory specified above)
+#    cutnumber (to be saved in Cart Chunk)
+#    normalize (True or False)
+#    trim (True or False)
+#    stretch (True or False)
+
+
+[label1]
+title: Hour One (The Daily News-Record, etc.)
+filename: label
+
+[1]
+title: The Daily News-Record, part 1
+duration: 1740
+filename: 2a.wav
+cutnumber: 020201
+normalize: False
+trim: False
+stretch: False
+
+[2]
+title: The Daily News-Record, part 2
+duration: 1740
+filename: 2b.wav
+cutnumber: 020202
+normalize: False
+trim: False
+stretch: False
+
+[label2]
+title: Hour Two (Staunton News Leader, Waynesboro News-Virginian, etc.)
+filename: label
+
+[3]
+title: News-Leader and News-Virginian, part 1
+duration: 1740
+filename: 1a.wav
+cutnumber: 020101
+normalize: False
+trim: False
+stretch: False
+
+[4]
+title: News-Leader and News-Virginian, part 2
+duration: 1740
+filename: 1b.wav
+cutnumber: 020102
+normalize: False
+trim: False
+stretch: False
+
+[label3]
+title: Hour Three (Charlottesville Daily Progress, etc.)
+filename: label
+
+[5]
+title: Daily Progress, part 1
+duration: 1740
+filename: 3a.wav
+cutnumber: 020301
+normalize: False
+trim: False
+stretch: False
+
+[6]
+title: Daily Progress, part 2
+duration: 1740
+filename: 3b.wav
+cutnumber: 020302
+normalize: False
+trim: False
+stretch: False
+
+
