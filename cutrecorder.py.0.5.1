@@ -36,15 +36,6 @@ from subprocess import *            # run system commands
 # 
 # changelog:
 # 
-#
-# 0.6   20151101 DE
-#
-#       implemented logging: environment variable must be set via "export ECASOUND_LOGFILE=~/cutrecorder/cutrecorder.log"
-#       fixed intermittent timeout error by preventing conflict between pause/resume and getting current position
-#           (see "horseholder" flag)
-#       changed to stereo recording, with automatic mono-mixdown between recording and processing
-#
-#
 # 0.5.1 20150814 de
 #
 #	gave up on Cart Chunk - using filename
@@ -106,10 +97,7 @@ class Recorder(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.running = False
-        self.horseholder = False
         self.e = ECA_CONTROL_INTERFACE(0)
-        self.e.command("int-set-log-history-length 1024")
-        self.e.command("int-log-history")
         self.e.command("cs-add rec_chainsetup")
         self.e.command("c-add 1st_chain")
         self.e.command('cs-set-audio-format 16,2,44100')
@@ -136,6 +124,7 @@ class Recorder(Thread):
         self.e.command("cs-disconnect")
         self.running = False
         status_text.set('STOPPED.')
+        time.sleep(2)
         print cut_normalize, cut_trim, cut_stretch
         print "Converting from stereo to mono."
         status_text.set('Making file monaural.')
@@ -179,6 +168,7 @@ class Recorder(Thread):
         if response == 'yes':
             self.e.command("cs-disconnect")
             status_text.set('cancelling')
+            time.sleep(2)
             call(["rm", temporary_file])
             print "Recording Cancelled."
             os._exit(1)
@@ -186,34 +176,33 @@ class Recorder(Thread):
             return
 
     def pause_recorder(self):
-        self.horseholder = True
         time.sleep(0.5)
         if self.e.command("engine-status") == "stopped":
+            time.sleep(0.5)
             self.e.command("start")
-            time.sleep(0.3)
-            self.horseholder = False
             status_text.set('Recording.')
             pause_button_label.set('pause')
             print "Recording Unpaused."
+            time.sleep(0.5)
         else:
+            time.sleep(0.5)
             self.e.command("stop")
-            time.sleep(0.3)
-            self.horseholder = False
             status_text.set('Paused.')
             pause_button_label.set('unpause')
             print "Recording Paused."
+            time.sleep(0.5)
 
     def run(self):
         while self.running:
             time.sleep(0.5)
-            if self.horseholder != True:
-                self.e.command("cs-get-position")
-                current_position = self.e.last_float()
-                calculated_time = cut_duration - current_position
-                formatted_time = '  %02d:%02d  ' % (calculated_time / 60, calculated_time % 60)
-                displayed_time.set(formatted_time)
-                if current_position >= cut_duration:
-                    self.running = False
+            self.e.command("cs-get-position")
+            current_position = self.e.last_float()
+            calculated_time = cut_duration - current_position
+            formatted_time = '  %02d:%02d  ' % (calculated_time / 60, calculated_time % 60)
+            displayed_time.set(formatted_time)
+            if current_position >= cut_duration:
+                self.running = False
+            time.sleep(0.5)
         self.stop_recorder()
         return
 
