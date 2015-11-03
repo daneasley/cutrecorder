@@ -1,9 +1,0 @@
-
-Recording Paused.
-timeout: s=< >, cmd=stop.
-Recording Unpaused.
-
-Recording Paused.
-Recording Unpaused.
-timeout: s=< >, cmd=cs-get-position.
-
