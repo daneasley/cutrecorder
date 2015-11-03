@@ -15,9 +15,9 @@ print
 #
 #       jack audio connection kit   (low-level audio system)
 #       ecasound                    (intermediary system for recording)
-#       python-ecasound             
+#       python-ecasound             (python library to interact with ecasound)
 #       sox                         (for processing)
-#       normalize-audio
+#       normalize-audio             (sox can normalize, but this is easier)
 #
 #       below-listed python modules
 
@@ -29,32 +29,30 @@ from functools import partial       # advanced function calling (don't yet under
 import ConfigParser                 # load configuration file
 import time                         # display time in something other than floating point seconds
 from pyeca import *                 # load ecasound for recording
-import threading
-from threading import *             # run audio procedures in separate thread, so that gui remains responsive during recording
+import threading                    # run audio procedures in separate thread, so that gui remains responsive during recording
+from threading import *             # (this or the previous line likely redundant)
 from subprocess import *            # run system commands
 
 # 
 # changelog:
 # 
 #
-# 0.6   20151101 DE
+# 0.6.1 20151103 de
+#       fixed possible race condition with start and stop
 #
+# 0.6   20151101 de
 #       implemented logging: environment variable must be set via "export ECASOUND_LOGFILE=~/cutrecorder/cutrecorder.log"
-#       fixed intermittent timeout error by preventing conflict between pause/resume and getting current position
+#       fixed intermittent timeout error by preventing race condition between get_current_position and pause/unpause
 #           (see "horseholder" flag)
 #       changed to stereo recording, with automatic mono-mixdown between recording and processing
 #
-#
 # 0.5.1 20150814 de
-#
-#	gave up on Cart Chunk - using filename
+#	    gave up on Cart Chunk - using filename
 #
 # 0.5   20150806 de
-#
 #       implemented saving cutnumber to Cart Chunk (using https://github.com/jmcmellen/cdputils)
 #
 # 0.4   20150619 de (beta)
-#
 #       configuration file: add boolean fields for normalizing, trimming, and stretching
 #           sox & normalize-audio
 #               1. normalize
@@ -63,11 +61,9 @@ from subprocess import *            # run system commands
 #       Possibly feature-ready for Valley Voice: test with volunteers
 #
 # 0.3.1 20150612 de
-#
 #       implemented stop-and-save button (to end before duration reached yet keep the recording)
 #
 # 0.3   20150611 de
-#
 #       implemented threading, classes (made gui responsive during recording)
 #       implemented timer, status display, pause and cancel (w/ autopause and confirmation)
 #       configuration file:
@@ -75,13 +71,11 @@ from subprocess import *            # run system commands
 #          provided ability to place labels between cuts (by specifying a cut with a desired title, duration of '0', and filename of 'label'.)
 #
 # 0.2   20150601 de
-#
 #       use jack instead of alsa
 #       broke audio recording by not understanding windows/classes/something
-#       replaced json-formatted CUTSLIST file with proper config file
+#       replaced json-formatted CUTSLIST file with proper config file using standard ConfigParser library
 #
 # 0.1   20150528 de
-#
 #       main window: two-column grid
 #       reads a list of cuts from a json file and presents them as a group of radio buttons in the left column of the window
 #       record button records using alsa (current position written to console) until it reaches duration
@@ -89,15 +83,21 @@ from subprocess import *            # run system commands
 #               
 # roadmap:
 #
-# 1.0   Implemented in radio reading service studio.
-#
+# 1.0   
+#       code cleanup
+#       error correction for problems with config file: missing file, missing sections, missing options, etc.
+#       error correction for failed saves
 # 1.1
-#       add number of channels per cut (currently hard-coded to mono)
-#       error correction for problems with config file: missing file, missing sections, malformed entries, etc.
+#       add number of channels per cut (currently hard-coded to mono^H^H^H^Hstereo-converted-to-mono)
 # 1.2
 #       implement Cart Chunk (perhaps via https://github.com/jmcmellen/cdputils)
 # 1.3
 #       split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
+#
+# possible sideroutes:
+#
+#       move from pyeca (ecasound ECI) to pyAudio (portaudio interface) for better cross-platform compatibility
+#
 #
 
 # define Recorder class, using pyeca (python-ecasound bridge, hardcoded below for JACK on linux.  google ecasound-iam for rosettastone)
