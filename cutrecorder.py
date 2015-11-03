@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 print "-----------------------------------------------------------------------"
-print "cutrecorder 0.6        by dan easley. begun in the late spring of 2015."
+print "cutrecorder 0.6.1      by dan easley. begun in the late spring of 2015."
 print "-----------------------------------------------------------------------"
 print 
 print "a simple interface for recording cuts, written with python, tk, & ecasound"
