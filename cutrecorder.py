@@ -132,6 +132,8 @@ class Recorder(Thread):
             pass
 
     def stop_recorder(self):
+        self.horseholder = True
+        time.sleep(0.5)
         self.e.command("stop")
         self.e.command("cs-disconnect")
         self.running = False
