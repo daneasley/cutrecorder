@@ -93,15 +93,18 @@ from subprocess import *            # run system commands
 #        config file: missing file, missing sections, missing options, etc.
 #        error correction for failed saves
 #        audio subsystem failures (can't find [ecasound|portaudio|whatever])
-#        non-realtime processing failures (can't find [sox|normalize-audio])
+#        post-processing failures (can't find [sox|normalize-audio])
 # 1.x
 #    allow for variable channels per cut, specified within configuration file 
 #        (currently hard-coded to mono^H^H^H^Hstereo-converted-to-mono)
 #        specify both number of channels to record from and number of channels to save to
 #    allow for different formats per cut, specified within configuration file
 #    launch preferred text editor with configuration file open
-#    implement Cart Chunk (perhaps via https://github.com/jmcmellen/cdputils)
+#    replace normalize-audio with sox (with similar parameters: limiter, then normalize)
+#    
+#
 # pre-2.0
+#    implement Cart Chunk writing (perhaps via https://github.com/jmcmellen/cdputils)
 #    split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
 # 2.0
 #    true configuration editing within program
@@ -110,7 +113,8 @@ from subprocess import *            # run system commands
 #         or
 #        nama (ecasound wrapper) for additional features
 # post-2.0
-#    add scheduled recordings
+#    implement scheduled recordings
+#    implement parameters for post-processing
 
 # define Recorder class, using pyeca (python-ecasound bridge, hardcoded below for JACK on linux.  google ecasound-iam for rosettastone)
 
