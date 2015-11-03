@@ -81,28 +81,34 @@ from subprocess import *            # run system commands
 #       record button records using alsa (current position written to console) until it reaches duration
 #       recording duration set in source
 #               
+# UI improvements:
+#    combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
+#    grey-out or hide cut selection area when recording is ongoing, or separate processes into separate windows/modes
+#
 # roadmap:
-#
 # 1.0   
-#       code cleanup
-#       error correction for problems with config file: missing file, missing sections, missing options, etc.
-#       error correction for failed saves
-# 1.1
-#       add number of channels per cut (currently hard-coded to mono^H^H^H^Hstereo-converted-to-mono)
-# 1.2
-#       implement Cart Chunk (perhaps via https://github.com/jmcmellen/cdputils)
-# 1.3
-#       split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
-#
-# UI improvement considerations:
-#
-#       combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
-#       grey-out or hide cut selection area when recording is ongoing, or separate processes into separate windows/modes
-#
-# possible sideroutes:
-#
-#       move from pyeca (ecasound ECI) to pyAudio (portaudio interface) for better cross-platform compatibility
-#
+#    ui improvements
+#    code cleanup
+#    error correction:
+#        config file: missing file, missing sections, missing options, etc.
+#        error correction for failed saves
+#        audio subsystem failures (can't find [ecasound|portaudio|whatever])
+#        non-realtime processing failures (can't find [sox|normalize-audio])
+# 1.x
+#    allow for variable channels per cut, specified within configuration file 
+#        (currently hard-coded to mono^H^H^H^Hstereo-converted-to-mono)
+#        specify both number of channels to record from and number of channels to save to
+#    allow for different formats per cut, specified within configuration file
+#    launch preferred text editor with configuration file open
+#    implement Cart Chunk (perhaps via https://github.com/jmcmellen/cdputils)
+# before 2.0
+#    split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
+# 2.0
+#    true configuration editing within program
+#    possible move from pyeca (ecasound ECI) to either
+#        pyAudio (portaudio interface) for better cross-platform compatibility
+#         or
+#        nama (ecasound wrapper) for additional features
 #
 
 # define Recorder class, using pyeca (python-ecasound bridge, hardcoded below for JACK on linux.  google ecasound-iam for rosettastone)
