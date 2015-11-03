@@ -89,7 +89,8 @@ from subprocess import *            # run system commands
 # 1.0   
 #    ui improvements
 #    code cleanup
-#    error correction:
+#        move post-processing to separate function
+#    error correction
 #        config file: missing file, missing sections, missing options, etc.
 #        error correction for failed saves
 #        audio subsystem failures (can't find [ecasound|portaudio|whatever])
@@ -101,8 +102,6 @@ from subprocess import *            # run system commands
 #    allow for different formats per cut, specified within configuration file
 #    launch preferred text editor with configuration file open
 #    replace normalize-audio with sox (with similar parameters: limiter, then normalize)
-#    
-#
 # pre-2.0
 #    implement Cart Chunk writing (perhaps via https://github.com/jmcmellen/cdputils)
 #    split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
