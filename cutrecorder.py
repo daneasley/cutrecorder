@@ -101,7 +101,7 @@ from subprocess import *            # run system commands
 #    allow for different formats per cut, specified within configuration file
 #    launch preferred text editor with configuration file open
 #    implement Cart Chunk (perhaps via https://github.com/jmcmellen/cdputils)
-# before 2.0
+# pre-2.0
 #    split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
 # 2.0
 #    true configuration editing within program
@@ -109,7 +109,8 @@ from subprocess import *            # run system commands
 #        pyAudio (portaudio interface) for better cross-platform compatibility
 #         or
 #        nama (ecasound wrapper) for additional features
-#
+# post-2.0
+#    add scheduled recordings
 
 # define Recorder class, using pyeca (python-ecasound bridge, hardcoded below for JACK on linux.  google ecasound-iam for rosettastone)
 
