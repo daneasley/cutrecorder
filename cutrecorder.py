@@ -94,6 +94,11 @@ from subprocess import *            # run system commands
 # 1.3
 #       split Recorder class out to proper module with sensible threading/object-orientedness/etc.: make it a generically useful wrapper for pyeca
 #
+# UI improvement considerations:
+#
+#       combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
+#       grey-out or hide cut selection area when recording is ongoing, or separate processes into separate windows/modes
+#
 # possible sideroutes:
 #
 #       move from pyeca (ecasound ECI) to pyAudio (portaudio interface) for better cross-platform compatibility
