@@ -123,10 +123,10 @@ class Recorder(Thread):
             self.e.command(fileconnector)
             self.e.command("cs-connect")
             self.e.command("start")
-            self.running = True
             print "Recording Started; saving to ", cut_filepath
             status_text.set('RECORDING')
             pause_button_label.set('pause')
+            self.running = True
             self.start()
         else:
             pass
