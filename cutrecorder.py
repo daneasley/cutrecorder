@@ -54,7 +54,7 @@ from subprocess import *            # run system commands
 #	    gave up on Cart Chunk - using filename
 #
 # 0.5   20150806 de
-#       implemented saving cutnumber to Cart Chunk (using https://github.com/jmcmellen/cdputils)
+#       tried implemented saving cutnumber to Cart Chunk (using https://github.com/jmcmellen/cdputils)
 #
 # 0.4   20150619 de (beta)
 #       configuration file: add boolean fields for normalizing, trimming, and stretching
