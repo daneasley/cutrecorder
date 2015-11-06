@@ -37,6 +37,7 @@ from subprocess import *            # run system commands
 # changelog:
 # 
 # 0.6.2 20151106 de
+#       combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
 #       move post-processing to separate function
 #       fixed possible race condition with stop
 #
@@ -85,7 +86,6 @@ from subprocess import *            # run system commands
 #       recording duration set in source
 #               
 # UI improvements:
-#    combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
 #    grey-out or hide cut selection area when recording is ongoing, or separate processes into separate windows/modes
 #
 # roadmap:
@@ -142,7 +142,7 @@ class Recorder(Thread):
             self.e.command("start")
             print "Recording Started; saving to ", cut_filepath
             status_text.set('RECORDING')
-            pause_button_label.set('pause')
+            record_button_label.set('pause')
             self.running = True
             self.start()
         else:
@@ -186,14 +186,14 @@ class Recorder(Thread):
             time.sleep(0.3)
             self.horseholder = False
             status_text.set('Recording.')
-            pause_button_label.set('pause')
-            print "Recording Unpaused."
+            record_button_label.set('pause')
+            print "Recording Resumed."
         else:
             self.e.command("stop")
             time.sleep(0.3)
             self.horseholder = False
             status_text.set('Paused.')
-            pause_button_label.set('unpause')
+            record_button_label.set('resume')
             print "Recording Paused."
 
     def run(self):
@@ -268,10 +268,6 @@ class App:
         global record_button_label
         record_button_label = tk.StringVar()
         record_button_label.set('record')
-
-        global pause_button_label
-        pause_button_label = tk.StringVar()
-        pause_button_label.set('pause')
 
         global stop_button_label
         stop_button_label = tk.StringVar()
@@ -420,9 +416,6 @@ class App:
         record_button = tk.Button(controlframe, textvariable = record_button_label, font=('times', 32, 'bold'), foreground='red', background='white', width="15", command=partial(self.start_recording))
         record_button.grid(row=2, column=0, ipadx=10, ipady=10, padx=5, pady=12, sticky='nsew')
 
-        pause_button = tk.Button(controlframe, textvariable = pause_button_label, font=('times', 32, 'bold'), foreground='green', background='white', width="15", command=partial(self.pause_recording))
-        pause_button.grid(row=3, column=0, ipadx=10, ipady=10, padx=5, pady=12, sticky='nsew')
-
         stop_button = tk.Button(controlframe, textvariable = stop_button_label, font=('times', 32, 'bold'), foreground='blue', background='white', width="15", command=partial(self.stop_recording))
         stop_button.grid(row=4, column=0, ipadx=10, ipady=10, padx=5, pady=12, sticky='nsew')
 
@@ -473,12 +466,15 @@ class App:
     #----------------------------------------------------------------------
     def start_recording(self):
         # Check if a file has been selected; if not, alert user; otherwise, call the start_recorder function of deck
-        global cut_filename
-        if cut_filename == "foobar.wav":
-            print "Not recording, as user has not selected a cut."
-            tkMessageBox.showinfo("Whoops!", "Please select a cut to record before pressing 'Record'.")
+        if deck.running == True:
+            deck.pause_recorder()
         else:
-            deck.start_recorder()
+            global cut_filename
+            if cut_filename == "foobar.wav":
+                print "Not recording, as user has not selected a cut."
+                tkMessageBox.showinfo("Whoops!", "Please select a cut to record before pressing 'Record'.")
+            else:
+                deck.start_recorder()
 
     def pause_recording(self):
         deck.pause_recorder()
