@@ -36,6 +36,9 @@ from subprocess import *            # run system commands
 # 
 # changelog:
 # 
+# 0.6.2 20151106 de
+#       move post-processing to separate function
+#       fixed possible race condition with stop
 #
 # 0.6.1 20151103 de
 #       fixed possible race condition with start and stop
@@ -89,7 +92,6 @@ from subprocess import *            # run system commands
 # 1.0   
 #    ui improvements
 #    code cleanup
-#        move post-processing to separate function
 #    error correction
 #        config file: missing file, missing sections, missing options, etc.
 #        error correction for failed saves
@@ -153,33 +155,7 @@ class Recorder(Thread):
         self.e.command("cs-disconnect")
         self.running = False
         status_text.set('STOPPED.')
-        print cut_normalize, cut_trim, cut_stretch
-        print "Converting from stereo to mono."
-        status_text.set('Making file monaural.')
-        call(["cp", temporary_file, "temp-mono.wav"])
-        call("sox temp-mono.wav " + temporary_file + " channels 1", shell = True)
-        if cut_normalize == "True":
-            status_text.set('Normalizing file.')
-            print "Normalizing file."
-            call("normalize-audio " + temporary_file, shell = True)
-        if cut_trim == "True":
-            status_text.set('Trimming file.')
-            print "Trimming file."
-            call(["cp", temporary_file, "temp-trim.wav"])
-            call("sox temp-trim.wav " + temporary_file + " silence 1 0.1 -50d reverse silence 1 0.1 -60d reverse", shell = True)
-            call("rm temp-trim.wav", shell = True)
-        if cut_stretch == "True":
-            status_text.set('Stretching file.')
-            print "Stretching file."
-            call(["cp", temporary_file, "temp-stretch.wav"])
-            # get current duration
-            find_duration = Popen("soxi -D temp-stretch.wav", shell = True, stdout=PIPE)
-            actual_duration = float(find_duration.communicate()[0])
-            # calculate factor
-            factor = actual_duration / cut_duration
-            # apply factor
-            call("sox temp-stretch.wav " + temporary_file + " tempo -s " + str(factor), shell = True)
-            call("rm temp-stretch.wav", shell = True)
+        self.post_processing()
         status_text.set('Copying to final destination.')
         call(["cp", temporary_file, cut_filepath])
         status_text.set('Deleting temporary file.')
@@ -234,6 +210,35 @@ class Recorder(Thread):
         self.stop_recorder()
         return
 
+    def post_processing(self):
+        print cut_normalize, cut_trim, cut_stretch
+        print "Converting from stereo to mono."
+        status_text.set('Making file monaural.')
+        call(["cp", temporary_file, "temp-mono.wav"])
+        call("sox temp-mono.wav " + temporary_file + " channels 1", shell = True)
+        if cut_normalize == "True":
+            status_text.set('Normalizing file.')
+            print "Normalizing file."
+            call("normalize-audio " + temporary_file, shell = True)
+        if cut_trim == "True":
+            status_text.set('Trimming file.')
+            print "Trimming file."
+            call(["cp", temporary_file, "temp-trim.wav"])
+            call("sox temp-trim.wav " + temporary_file + " silence 1 0.1 -50d reverse silence 1 0.1 -60d reverse", shell = True)
+            call("rm temp-trim.wav", shell = True)
+        if cut_stretch == "True":
+            status_text.set('Stretching file.')
+            print "Stretching file."
+            call(["cp", temporary_file, "temp-stretch.wav"])
+            # get current duration
+            find_duration = Popen("soxi -D temp-stretch.wav", shell = True, stdout=PIPE)
+            actual_duration = float(find_duration.communicate()[0])
+            # calculate factor
+            factor = actual_duration / cut_duration
+            # apply factor
+            call("sox temp-stretch.wav " + temporary_file + " tempo -s " + str(factor), shell = True)
+            call("rm temp-stretch.wav", shell = True)
+        
 # define Application class
 #----------------------------------------------------------------------
 class App:
@@ -479,6 +484,7 @@ class App:
         deck.pause_recorder()
 
     def stop_recording(self):
+        deck.horseholder = True
         deck.running = False
 
     def cancel_recording(self):
