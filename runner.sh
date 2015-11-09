@@ -28,11 +28,25 @@
 # Run Cut Recorder in infinite loop (performing kludgy cleanup on other applications' window size/locations each iteration)
     echo Beginning recorder loop.
     while true; do
-	    wmctrl -r Iceweasel -e 0,1281,0,1278,1000
-    	xdotool search --name "Meter" windowsize 78 980 windowmove 1190 24
-    	jack_connect system:capture_1 "True-Peak Meter (Mono):in"
-    	jack_connect system:capture_2 "True-Peak Meter (Mono):in"
-    	./cutrecorder.py
+        # move/resize Web Browser window to all of second monitor
+        wmctrl -r Iceweasel -e 0,1281,0,1278,1000
+        # make sure meter is in right spot and size
+        xdotool search --name "Meter" windowsize 78 980 windowmove 1190 24
+        # make sure both inputs are connected to meter
+        jack_connect system:capture_1 "True-Peak Meter (Mono):in"
+        jack_connect system:capture_2 "True-Peak Meter (Mono):in"
+        # run cutrecorder with different configuration file based on day
+        case "$(date +%a)" in 
+            Mon) 
+                ./cutrecorder.py monday.config
+                ;;
+            Tue|Wed|Thu|Fri)
+                ./cutrecorder.py tuesdaythroughfriday.config
+                ;;
+            Sat|Sun) 
+                ./cutrecorder.py weekend.config
+                ;;
+        esac
     done
 
 echo Terminating.
