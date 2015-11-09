@@ -207,6 +207,7 @@ class Recorder(Thread):
                 displayed_time.set(formatted_time)
                 if current_position >= cut_duration:
                     self.running = False
+                    displayed_time.set('  00:00  ')
         self.stop_recorder()
         return
 
