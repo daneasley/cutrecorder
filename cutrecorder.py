@@ -150,10 +150,10 @@ class Recorder(Thread):
 
     def stop_recorder(self):
         self.horseholder = True
+        self.running = False
         time.sleep(0.5)
         self.e.command("stop")
         self.e.command("cs-disconnect")
-        self.running = False
         status_text.set('STOPPED.')
         self.post_processing()
         status_text.set('Copying to final destination.')
