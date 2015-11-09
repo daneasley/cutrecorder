@@ -47,6 +47,7 @@
                 ./cutrecorder.py weekend.config
                 ;;
         esac
+        sleep 2s
     done
 
 echo Terminating.
