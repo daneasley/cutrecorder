@@ -16,6 +16,7 @@ print
 #       jack audio connection kit   (low-level audio system)
 #       ecasound                    (intermediary system for recording)
 #       python-ecasound             (python library to interact with ecasound)
+#       python-tk                   (python library for GUI)
 #       sox                         (for processing)
 #       normalize-audio             (sox can normalize, but this is easier)
 #
