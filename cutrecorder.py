@@ -17,10 +17,8 @@ print
 #       ecasound                    (intermediary system for recording)
 #       python-ecasound             (python library to interact with ecasound)
 #       python-tk                   (python library for GUI)
-#       sox                         (for processing)
-#       normalize-audio             (sox can normalize, but this is easier)
+#       sox                         (for post-processing)
 #
-#       below-listed python modules
 
 # import classes and procedures
 import sys, os                      # parse command line arguments
@@ -37,6 +35,10 @@ from subprocess import *            # run system commands
 # 
 # changelog:
 # 
+#
+# 0.6.3 20151110 de
+#	removed most post-processing code
+#
 # 0.6.2 20151106 de
 #       combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
 #       move post-processing to separate function
@@ -97,7 +99,7 @@ from subprocess import *            # run system commands
 #        config file: missing file, missing sections, missing options, etc.
 #        error correction for failed saves
 #        audio subsystem failures (can't find [ecasound|portaudio|whatever])
-#        post-processing failures (can't find [sox|normalize-audio])
+#        post-processing failures (can't find sox)
 # 1.x
 #    allow for variable channels per cut, specified within configuration file 
 #        (currently hard-coded to mono^H^H^H^Hstereo-converted-to-mono)
@@ -154,9 +156,13 @@ class Recorder(Thread):
         self.running = False
         time.sleep(0.5)
         self.e.command("stop")
-        self.e.command("cs-disconnect")
         status_text.set('STOPPED.')
-        self.post_processing()
+        time.sleep(2)
+        self.e.command("engine-halt")
+        print "Converting from stereo to mono."
+        status_text.set('Making file monaural.')
+        call(["cp", temporary_file, "temp-mono.wav"])
+        call("sox temp-mono.wav " + temporary_file + " channels 1", shell = True)
         status_text.set('Copying to final destination.')
         call(["cp", temporary_file, cut_filepath])
         status_text.set('Deleting temporary file.')
@@ -211,35 +217,6 @@ class Recorder(Thread):
         self.stop_recorder()
         return
 
-    def post_processing(self):
-        print cut_normalize, cut_trim, cut_stretch
-        print "Converting from stereo to mono."
-        status_text.set('Making file monaural.')
-        call(["cp", temporary_file, "temp-mono.wav"])
-        call("sox temp-mono.wav " + temporary_file + " channels 1", shell = True)
-        if cut_normalize == "True":
-            status_text.set('Normalizing file.')
-            print "Normalizing file."
-            call("normalize-audio " + temporary_file, shell = True)
-        if cut_trim == "True":
-            status_text.set('Trimming file.')
-            print "Trimming file."
-            call(["cp", temporary_file, "temp-trim.wav"])
-            call("sox temp-trim.wav " + temporary_file + " silence 1 0.1 -50d reverse silence 1 0.1 -60d reverse", shell = True)
-            call("rm temp-trim.wav", shell = True)
-        if cut_stretch == "True":
-            status_text.set('Stretching file.')
-            print "Stretching file."
-            call(["cp", temporary_file, "temp-stretch.wav"])
-            # get current duration
-            find_duration = Popen("soxi -D temp-stretch.wav", shell = True, stdout=PIPE)
-            actual_duration = float(find_duration.communicate()[0])
-            # calculate factor
-            factor = actual_duration / cut_duration
-            # apply factor
-            call("sox temp-stretch.wav " + temporary_file + " tempo -s " + str(factor), shell = True)
-            call("rm temp-stretch.wav", shell = True)
-        
 # define Application class
 #----------------------------------------------------------------------
 class App:
@@ -303,13 +280,6 @@ class App:
 
         global cut_title
         cut_title = "The Origin of Consciousness in the Breakdown of the Bicameral Mind"
-
-        global cut_normalize
-        global cut_trim
-        global cut_stretch
-        cut_normalize = False
-        cut_trim = False
-        cut_stretch = False
 
         # parse command line arguments
         if len(sys.argv) > 1:
@@ -385,12 +355,9 @@ class App:
                     number = configsectionmap(cut)['cutnumber']
                     duration = float(configsectionmap(cut)['duration'])
                     formatted_duration = '%02d:%02d' % (duration / 60, duration % 60)
-                    normalize = configsectionmap(cut)['normalize']
-                    trim = configsectionmap(cut)['trim']
-                    stretch = configsectionmap(cut)['stretch']
                     button_text = title + "    [ length: " + formatted_duration + " ] "
                     print "Loaded", title, "of", duration, "seconds, to be saved as", filename
-                    select_button = tk.Radiobutton(listframe, text=button_text, variable=holder, value=filename, indicatoron=0, width="70", command=partial(self.set_cut_filepath, filename, number, duration, title, normalize, trim, stretch), font=('times', 12, 'bold'), foreground='black', background='white', activebackground='goldenrod', selectcolor='tomato')
+                    select_button = tk.Radiobutton(listframe, text=button_text, variable=holder, value=filename, indicatoron=0, width="70", command=partial(self.set_cut_filepath, filename, number, duration, title), font=('times', 12, 'bold'), foreground='black', background='white', activebackground='goldenrod', selectcolor='tomato')
                     select_button.grid(row=r, column=0, ipadx=5, ipady=5, padx=5, pady=5, sticky='nsew')
                 else:
                     label_text = title
@@ -437,16 +404,13 @@ class App:
     #
     # When a selection button is pushed, it calls this code to put the selected cut's filename in the variable.
     #----------------------------------------------------------------------
-    def set_cut_filepath(self, filename, number, duration, title, normalize, trim, stretch):
+    def set_cut_filepath(self, filename, number, duration, title):
         global cut_directory
         global cut_filename
         global cut_number
         global cut_filepath
         global cut_duration
         global cut_title
-        global cut_normalize
-        global cut_trim
-        global cut_stretch
         if filename != "label":
             cut_filename = filename
             cut_number = number
@@ -454,9 +418,6 @@ class App:
             print cut_filepath
             cut_duration = duration
             cut_title = title
-            cut_normalize = normalize
-            cut_trim = trim
-            cut_stretch = stretch
             status_text.set('Ready to record.')
             print "User selected", cut_title
         else:
