@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 print "-----------------------------------------------------------------------"
-print "cutrecorder 0.6.1      by dan easley. begun in the late spring of 2015."
+print "cutrecorder 0.6.3      by dan easley. begun in the late spring of 2015."
 print "-----------------------------------------------------------------------"
 print 
 print "a simple interface for recording cuts, written with python, tk, & ecasound"
@@ -38,6 +38,7 @@ from subprocess import *            # run system commands
 #
 # 0.6.3 20151110 de
 #	removed most post-processing code
+#	ecasound engine now halts at recording stop
 #
 # 0.6.2 20151106 de
 #       combine record and pause/unpause buttons, renaming 'unpause' to 'resume'.  (record/pause/resume)
