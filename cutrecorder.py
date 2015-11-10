@@ -191,7 +191,6 @@ class Recorder(Thread):
         else:
             self.e.command("stop")
             time.sleep(0.3)
-            self.horseholder = False
             status_text.set('Paused.')
             record_button_label.set('resume')
             print "Recording Paused."
