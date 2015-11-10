@@ -40,11 +40,14 @@
             Mon) 
                 ./cutrecorder.py monday.config
                 ;;
-            Tue|Wed|Thu|Fri)
-                ./cutrecorder.py tuesdaythroughfriday.config
+            Tue|Wed|Thu)
+                ./cutrecorder.py other.config
+                ;;
+            Fri)
+                ./cutrecorder.py friday.config
                 ;;
             Sat|Sun) 
-                ./cutrecorder.py weekend.config
+                ./cutrecorder.py other.config
                 ;;
         esac
         sleep 2s
