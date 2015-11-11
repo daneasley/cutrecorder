@@ -140,11 +140,11 @@ class Recorder(Thread):
 
     def start_recorder(self):
         if self.running == False:
-            fileconnector = "ao-add " + temporary_file
+            fileconnector = "ao-add " + temporary_file + cut_filename
             self.e.command(fileconnector)
             self.e.command("cs-connect")
             self.e.command("start")
-            print "Recording Started; saving to ", cut_filepath
+            print "Recording Started."
             status_text.set('RECORDING')
             record_button_label.set('pause')
             self.running = True
@@ -154,23 +154,18 @@ class Recorder(Thread):
 
     def stop_recorder(self):
         self.horseholder = True
-        self.running = False
         time.sleep(0.5)
-        self.e.command("stop")
-        status_text.set('STOPPED.')
-        time.sleep(1)
+        status_text.set('Saving.')
         self.e.command("cs-disconnect")
-        time.sleep(1)
-        self.e.command("engine-halt")
-	time.sleep(1)
-        print "Converting from stereo to mono."
+        print "Recording Stopped."
+        time.sleep(3)
         status_text.set('Making file monaural.')
-        call(["cp", temporary_file, "temp-toconvert.wav"])
-        call("sox temp-toconvert.wav " + temporary_file + " channels 1", shell = True)
+        call(["cp", temporary_file + cut_filename, "temp-toconvert.wav"])
+        call("sox temp-toconvert.wav " + temporary_file + cut_filename + " channels 1", shell = True)
         status_text.set('Copying to final destination.')
-        call(["cp", temporary_file, cut_filepath])
+        call(["cp", temporary_file + cut_filename, cut_filepath])
         status_text.set('Recording Saved.')
-        print "Recording Finished; ", cut_filepath, "saved."
+        print "Recording Saved to ", cut_filepath
         tkMessageBox.showinfo("Recording Saved", "Recording Finished and Saved.")
         os._exit(1)
 
@@ -180,8 +175,7 @@ class Recorder(Thread):
         response = tkMessageBox.askquestion("Cancel Recording", "Are you sure you want to cancel the recording? (It's currently paused.)", icon='warning')
         if response == 'yes':
             self.e.command("cs-disconnect")
-            status_text.set('cancelling')
-            call(["rm", temporary_file])
+            status_text.set('Cancelled.')
             print "Recording Cancelled."
             os._exit(1)
         else:
@@ -192,14 +186,14 @@ class Recorder(Thread):
         time.sleep(0.5)
         if self.e.command("engine-status") == "stopped":
             self.e.command("start")
-            time.sleep(0.3)
+            time.sleep(0.5)
             self.horseholder = False
             status_text.set('Recording.')
             record_button_label.set('pause')
             print "Recording Resumed."
         else:
             self.e.command("stop")
-            time.sleep(0.3)
+            time.sleep(0.5)
             status_text.set('Paused.')
             record_button_label.set('resume')
             print "Recording Paused."
@@ -214,6 +208,7 @@ class Recorder(Thread):
                 formatted_time = '  %02d:%02d  ' % (calculated_time / 60, calculated_time % 60)
                 displayed_time.set(formatted_time)
                 if current_position >= cut_duration:
+                    print "Timer ran to zero."
                     self.running = False
                     displayed_time.set('  00:00  ')
         self.stop_recorder()
@@ -318,8 +313,6 @@ class App:
         root.title (configsectionmap("Settings")['configuration_name'])
         temporary_file = configsectionmap("Settings")['temporary_file']
         cut_directory = configsectionmap("Settings")['destination']
-        print "Cuts will be saved in", cut_directory
-        print
 
         # (individual cut / label information is grabbed by GUI selection button code)
 
@@ -358,12 +351,10 @@ class App:
                     duration = float(configsectionmap(cut)['duration'])
                     formatted_duration = '%02d:%02d' % (duration / 60, duration % 60)
                     button_text = title + "    [ length: " + formatted_duration + " ] "
-                    print "Loaded", title, "of", duration, "seconds, to be saved as", filename
                     select_button = tk.Radiobutton(listframe, text=button_text, variable=holder, value=filename, indicatoron=0, width="70", command=partial(self.set_cut_filepath, filename, number, duration, title), font=('times', 12, 'bold'), foreground='black', background='white', activebackground='goldenrod', selectcolor='tomato')
                     select_button.grid(row=r, column=0, ipadx=5, ipady=5, padx=5, pady=5, sticky='nsew')
                 else:
                     label_text = title
-                    print "Loaded label."
                     label = tk.Label(listframe, font=('times', 12, 'bold'), text=label_text)
                     label.grid(row=r, column=0, ipadx=5, ipady=5, padx=7, pady=5, sticky='nsew')
                 r = r + 1
@@ -392,8 +383,7 @@ class App:
         cancel_button = tk.Button(controlframe, textvariable = cancel_button_label, font=('times', 32, 'bold'), foreground='goldenrod', background='white', width="15", command=partial(self.cancel_recording))
         cancel_button.grid(row=5, column=0, ipadx=10, ipady=10, padx=5, pady=12, sticky='nsew')
 
-        print "GUI Loaded"
-	print
+        print
 
         #----------------------------------------------------------------------
         # Begin Main GUI Loop
@@ -417,11 +407,10 @@ class App:
             cut_filename = filename
             cut_number = number
             cut_filepath = cut_directory + cut_number + "_" + cut_filename
-            print cut_filepath
             cut_duration = duration
             cut_title = title
             status_text.set('Ready to record.')
-            print "User selected", cut_title
+            print "User selected", cut_title, "to be saved as", cut_filepath
         else:
             return
 
@@ -444,7 +433,7 @@ class App:
         deck.pause_recorder()
 
     def stop_recording(self):
-        deck.horseholder = True
+        print "Stop Button Pressed."
         deck.running = False
 
     def cancel_recording(self):
