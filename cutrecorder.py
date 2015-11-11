@@ -166,7 +166,7 @@ class Recorder(Thread):
         print "Converting from stereo to mono."
         status_text.set('Making file monaural.')
         call(["cp", temporary_file, "temp-toconvert.wav"])
-        call("sox temp-convert.wav " + temporary_file + " channels 1", shell = True)
+        call("sox temp-toconvert.wav " + temporary_file + " channels 1", shell = True)
         status_text.set('Copying to final destination.')
         call(["cp", temporary_file, cut_filepath])
         status_text.set('Recording Saved.')
