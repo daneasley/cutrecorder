@@ -156,7 +156,7 @@ class Recorder(Thread):
         self.horseholder = True
         time.sleep(0.5)
         status_text.set('Saving.')
-        self.e.command("cs-disconnect")
+        self.e.command("stop")
         print "Recording Stopped."
         time.sleep(3)
         status_text.set('Making file monaural.')
@@ -434,6 +434,7 @@ class App:
 
     def stop_recording(self):
         print "Stop Button Pressed."
+        deck.horseholder = True
         deck.running = False
 
     def cancel_recording(self):
