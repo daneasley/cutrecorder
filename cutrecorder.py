@@ -140,6 +140,8 @@ class Recorder(Thread):
 
     def start_recorder(self):
         if self.running == False:
+            call(["rm", temporary_file + cut_filename])
+            time.sleep(0.5)
             fileconnector = "ao-add " + temporary_file + cut_filename
             self.e.command(fileconnector)
             self.e.command("cs-connect")
@@ -157,6 +159,8 @@ class Recorder(Thread):
         time.sleep(0.5)
         status_text.set('Saving.')
         self.e.command("stop")
+        time.sleep(1)
+        self.e.command("ao-remove")
         print "Recording Stopped."
         time.sleep(3)
         status_text.set('Making file monaural.')
