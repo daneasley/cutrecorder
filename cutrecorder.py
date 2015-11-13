@@ -158,11 +158,10 @@ class Recorder(Thread):
         self.horseholder = True
         time.sleep(0.5)
         status_text.set('Saving.')
-        self.e.command("stop")
-        time.sleep(1)
+        self.e.command("stop-sync")
         self.e.command("ao-remove")
         print "Recording Stopped."
-        time.sleep(3)
+        time.sleep(2)
         status_text.set('Making file monaural.')
         call(["cp", temporary_file + cut_filename, "temp-toconvert.wav"])
         call("sox temp-toconvert.wav " + temporary_file + cut_filename + " channels 1", shell = True)
