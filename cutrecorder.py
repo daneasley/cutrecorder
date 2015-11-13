@@ -158,8 +158,9 @@ class Recorder(Thread):
         self.horseholder = True
         time.sleep(0.5)
         status_text.set('Saving.')
-        self.e.command("stop-sync")
-        self.e.command("ao-remove")
+        #self.e.command("stop-sync")
+        #self.e.command("ao-remove")
+        self.e.command("quit")
         print "Recording Stopped."
         time.sleep(2)
         status_text.set('Making file monaural.')
